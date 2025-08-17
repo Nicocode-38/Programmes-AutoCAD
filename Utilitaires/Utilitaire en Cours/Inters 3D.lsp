@@ -1,0 +1,123 @@
+(defun GetPoly3DPoints (ent)
+  (if ent
+    (progn
+      (setq pts '())
+      (setq n (fix (vlax-curve-getEndParam ent)))
+      (setq i 0)
+      (while (<= i n)
+        (setq pts (append pts (list (vlax-curve-getPointAtParam ent i))))
+        (setq i (1+ i)))
+      pts)))
+
+(defun SegmentsFromPoints (pts)
+  (if (> (length pts) 1)
+    (mapcar '(lambda (a b) (list a b)) pts (cdr pts))
+  )
+)
+
+(defun IntersectSegments3D (a1 a2 b1 b2)
+  ;; Retourne le point d'intersection (ou nil) entre deux segments 3D (approximation)
+  (let* (
+    (u (mapcar '- a2 a1))
+    (v (mapcar '- b2 b1))
+    (w (mapcar '- a1 b1))
+    (a (apply '+ (mapcar '* u u)))
+    (b (apply '+ (mapcar '* u v)))
+    (c (apply '+ (mapcar '* v v)))
+    (d (apply '+ (mapcar '* u w)))
+    (e (apply '+ (mapcar '* v w)))
+    (D (- (* a c) (* b b)))
+    s t pA pB)
+    (if (and (/= D 0) (> a 0.00001) (> c 0.00001))
+      (progn
+        (setq s (/ (- (* b e) (* c d)) (float D)))
+        (setq t (/ (- (* a e) (* b d)) (float D)))
+        (setq pA (mapcar '+ a1 (mapcar (function (lambda (x) (* s x))) u)))
+        (setq pB (mapcar '+ b1 (mapcar (function (lambda (x) (* t x))) v)))
+        (if (< (distance pA pB) 1e-6)
+          (if (and (>= s 0) (<= s 1) (>= t 0) (<= t 1)) pA nil)
+          nil))
+      nil)))
+
+(defun Intersections3D (ent1 ent2)
+  (setq pts '())
+  (setq segs1 (SegmentsFromPoints (GetPoly3DPoints ent1)))
+  (setq segs2 (SegmentsFromPoints (GetPoly3DPoints ent2)))
+  (foreach s1 segs1
+    (foreach s2 segs2
+      (setq pt (IntersectSegments3D (car s1) (cadr s1) (car s2) (cadr s2)))
+      (if pt (setq pts (cons pt pts)))
+    ))
+  pts)
+
+(defun c:AjouteSommetPoly3D (ent pt)
+  (if (and ent pt)
+    (progn
+      (setq ed (entget ent))
+      (setq verts '())
+      (setq n (fix (vlax-curve-getEndParam ent)))
+      (setq i 0)
+      (while (<= i n)
+        (setq verts (append verts (list (vlax-curve-getPointAtParam ent i))))
+        (setq i (1+ i)))
+      ;; Cherche l'indice où insérer le sommet (le plus proche segment)
+      (setq minDist 1e99 idx 0 insIdx 0)
+      (repeat (1- (length verts))
+        (setq a (nth idx verts) b (nth (1+ idx) verts))
+        (setq d (distance pt (inters a b pt (mapcar '+ pt '(1e-6 0 0)) nil)))
+        (if (< d minDist)
+          (progn (setq minDist d) (setq insIdx (1+ idx))))
+        (setq idx (1+ idx)))
+      ;; Construit la nouvelle liste de sommets
+      (setq newVerts (append (sublist verts 0 insIdx) (list pt) (nthcdr insIdx verts)))
+      ;; Reconstruit l'entité
+      (setq newED (list (car ed)))
+      (foreach d ed
+        (if (/= (car d) 10) (setq newED (append newED (list d)))))
+      (foreach v newVerts
+        (setq newED (append newED (list (cons 10 v)))))
+      (entmod newED)
+      (entupd ent)
+    )
+  )
+)
+
+(defun sublist (lst start end)
+  (if (and lst (>= end start))
+    (reverse (last (reverse (take (+ 1 end) lst)) (- (length lst) (- end start 1))))
+    '()))
+
+(defun take (n lst)
+  (if (and lst (> n 0)) (cons (car lst) (take (1- n) (cdr lst))) '()))
+
+(defun c:AjouteSommetsIntersections3D ( / ent1 ss2 i ent2 pts)
+  (vl-load-com)
+  (setq ent1 (car (entsel "\nSélectionnez la poly3D à modifier : ")))
+  (if (and ent1 (= (cdr (assoc 0 (entget ent1))) "POLYLINE"))
+    (progn
+      (setq ss2 (ssget '((0 . "POLYLINE"))))
+      (if ss2
+        (progn
+          (setq pts '())
+          (setq i 0)
+          (while (< i (sslength ss2))
+            (setq ent2 (ssname ss2 i))
+            (if (/= ent2 ent1)
+              (progn
+                (setq pts (append pts (Intersections3D ent1 ent2)))
+              )
+            )
+            (setq i (1+ i))
+          )
+          (foreach pt pts
+            (AjouteSommetPoly3D ent1 pt)
+          )
+          (princ (strcat "\n" (itoa (length pts)) " sommet(s) ajouté(s)."))
+        )
+        (princ "\nAucune poly3D sélectionnée pour l'intersection.")
+      )
+    )
+    (princ "\nSélection non valide.")
+  )
+  (princ)
+)

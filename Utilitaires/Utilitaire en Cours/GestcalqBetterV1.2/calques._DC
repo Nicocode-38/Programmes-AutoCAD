@@ -1,0 +1,50 @@
+calques_dialog : dialog {
+  label = "Gestionnaire de calques";
+
+  : boxed_column {
+    label = "Liste des calques";
+    : list_box {
+      key = "layers_list";
+      width = 40;
+      height = 15;
+      multiple_select = true;
+    }
+  }
+
+  : boxed_column {
+    label = "Renommer les calques";
+    : edit_box {
+      key = "prefixe";
+      label = "Préfixe à ajouter :";
+      edit_width = 30;
+    }
+    : button {
+      key = "btn_prefixe";
+      label = "Appliquer le préfixe";
+    }
+  }
+
+  : boxed_column {
+    label = "Filtrer par couleur ACI";
+    : edit_box {
+      key = "filtre_couleur";
+      label = "Couleur (1 à 255) :";
+      edit_width = 10;
+    }
+    : button {
+      key = "btn_filtrer";
+      label = "Appliquer le filtre";
+    }
+    : button {
+      key = "btn_degele";
+      label = "Tout dégeler";
+    }
+  }
+
+  : row {
+    : spacer { width = 1; }
+    : ok_button { label = "OK"; is_default = true; }
+    : cancel_button { label = "Annuler"; }
+  }
+}
+
