@@ -1,0 +1,17 @@
+(defun c:ClPro ( / ss i ent)
+  (vl-load-com)
+  (setq ss (ssget "_X" '((0 . "ACAD_PROXY_ENTITY"))))
+  (if ss
+    (progn
+      (setq i 0)
+      (while (< i (sslength ss))
+        (setq ent (ssname ss i))
+        (entdel ent)
+        (setq i (1+ i))
+      )
+      (princ (strcat "\nNombre de proxies supprimés : " (itoa (sslength ss))))
+    )
+    (princ "\nAucun proxy trouvé.")
+  )
+  (princ)
+)

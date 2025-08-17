@@ -1,0 +1,20 @@
+(defun c:ClZB ( / bname bdef blocks doc count)
+  (vl-load-com)
+  (setq doc (vla-get-ActiveDocument (vlax-get-Acad-Object)))
+  (setq blocks (vla-get-Blocks doc))
+  (setq count 0)
+  (vlax-for b blocks
+    (setq bname (vla-get-Name b))
+    (if (and (not (vla-get-IsLayout b))
+             (wcmatch (strcase bname) "*$A$*") ; nom typique des zombies
+        )
+      (progn
+        (princ (strcat "\nSuppression du block zombie : " bname))
+        (vla-delete b)
+        (setq count (1+ count))
+      )
+    )
+  )
+  (princ (strcat "\nNombre de blocs zombies supprimés : " (itoa count)))
+  (princ)
+)
