@@ -1,0 +1,60 @@
+calques_dialog : dialog {
+  label = "Gestionnaire de calques";
+  : column {
+    width = 50;
+
+
+    : edit_box {
+      key   = "filter_layer";
+      label = "Nom contient :";
+      width = 20;
+    }
+
+    : row {
+      : edit_box {
+        key   = "aci_filtre";
+        label = "ACI :";
+        width = 5;
+      }
+      : button {
+        key   = "btn_filtrer_couleur";
+        label = "Filtrer par couleur";
+      }
+    }
+
+    : button {
+      key   = "btn_reset_filtre";
+      label = "Réinitialiser les filtres";
+    }
+
+    : list_box {
+      key             = "layers_list";
+      label           = "Calques disponibles :";
+      height          = 12;
+      width           = 40;
+      multiple_select = true;
+    }
+
+    : edit_box {
+      key   = "prefixe";
+      label = "Préfixe renommage :";
+      width = 15;
+    }
+
+    : button {
+      key   = "btn_prefixe";
+      label = "Renommer sélection";
+    }
+
+    : button {
+      key   = "btn_suppr_vides";
+      label = "Supprimer calques vides";
+    }
+
+    : button {
+      key       = "cancel";
+      label     = "Fermer";
+      is_cancel = true;
+    }
+  }
+}
