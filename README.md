@@ -11,7 +11,7 @@ Tous les programmes sont annotés de la manière suivante :
 ; Comm : Important de lire avant utilisation.
 ; Vers : Version
 
-;Updates : mises a jours des versions avec coommentaire 
+;Updates : mises a jours des versions avec commentaire 
 
 ;=========================================================
 ;=Version Fonctionelle :				                       	 =
