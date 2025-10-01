@@ -8,5 +8,3 @@ Tous les programmes sont annotés de la manière suivante :
 ; Vers : Version
 
 ;Updates : mises a jours des versions avec commentaire 
-
-
