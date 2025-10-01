@@ -9,9 +9,4 @@ Tous les programmes sont annotés de la manière suivante :
 
 ;Updates : mises a jours des versions avec commentaire 
 
-;=========================================================
-;=Version Fonctionelle :				                       	 =
-;=Autocad MAP2024 - 2025					                       =
-;=Merci de regarder la Doc avant utilisation du programme=
-;=========================================================
 
